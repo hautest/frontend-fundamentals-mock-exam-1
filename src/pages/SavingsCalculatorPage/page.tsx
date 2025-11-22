@@ -8,13 +8,18 @@ import { FormProvider } from 'react-hook-form';
 
 export function SavingsCalculatorPage() {
   const form = useCalculatorForm();
+
+  const [monthlyAmount, term] = form.watch(['monthlyAmount', 'term']);
+
   return (
-    <FormProvider {...form}>
+    <>
       <NavigationBar title="적금 계산기" />
 
       <Spacing size={16} />
 
-      <CalculatorForm />
+      <FormProvider {...form}>
+        <CalculatorForm />
+      </FormProvider>
 
       <Spacing size={24} />
       <Border height={16} />
@@ -31,7 +36,7 @@ export function SavingsCalculatorPage() {
 
       <QueryErrorBoundary fallback={({ error, reset }) => <SavingsProductList.Error error={error} reset={reset} />}>
         <Suspense fallback={<SavingsProductList.Skeleton />}>
-          <SavingsProductList />
+          <SavingsProductList monthlyAmount={monthlyAmount} term={term} />
         </Suspense>
       </QueryErrorBoundary>
 
@@ -112,6 +117,6 @@ export function SavingsCalculatorPage() {
 
       {/* 아래는 사용자가 적금 상품을 선택하지 않고 계산 결과 탭을 선택했을 때 출력해주세요. */}
       {/* <ListRow contents={<ListRow.Texts type="1RowTypeA" top="상품을 선택해주세요." />} /> */}
-    </FormProvider>
+    </>
   );
 }

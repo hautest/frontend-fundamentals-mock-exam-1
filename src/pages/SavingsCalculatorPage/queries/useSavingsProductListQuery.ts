@@ -1,10 +1,12 @@
 import { useSuspenseQuery, UseSuspenseQueryOptions } from '@tanstack/react-query';
 import { SavingsProduct } from 'entities/savingsProduct/savingsProduct';
-import { http } from 'tosslib';
+import { http, HttpError } from 'tosslib';
 
 const queryKey = ['saving-product-list'];
 
-export const useSavingsProductListSuspenseQuery = (options?: UseSuspenseQueryOptions<SavingsProduct[]>) => {
+export const useSavingsProductListSuspenseQuery = (
+  options?: Omit<UseSuspenseQueryOptions<SavingsProduct[], HttpError>, 'queryKey' | 'queryFn'>
+) => {
   return useSuspenseQuery({
     queryKey,
     queryFn: () => {

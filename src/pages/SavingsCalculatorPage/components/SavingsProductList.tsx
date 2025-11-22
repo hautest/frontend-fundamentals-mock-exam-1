@@ -4,10 +4,25 @@ import { css } from '@emotion/react';
 import { Skeleton } from 'shared/ui/Skeleton';
 import { ErrorBoundaryFallbackProps } from '@suspensive/react';
 
-export function SavingsProductList() {
+interface SavingsProductListProps {
+  monthlyAmount?: number;
+  term?: number;
+}
+
+export function SavingsProductList({ monthlyAmount, term }: SavingsProductListProps) {
   const { data: savingsProducts } = useSavingsProductListSuspenseQuery();
 
-  if (savingsProducts.length === 0) {
+  const filteredSavingsProducts =
+    monthlyAmount && term
+      ? savingsProducts.filter(
+          product =>
+            product.minMonthlyAmount <= monthlyAmount &&
+            product.maxMonthlyAmount >= monthlyAmount &&
+            product.availableTerms === term
+        )
+      : savingsProducts;
+
+  if (filteredSavingsProducts.length === 0) {
     return (
       <Flex
         as="p"
@@ -25,7 +40,7 @@ export function SavingsProductList() {
 
   return (
     <ul>
-      {savingsProducts.map(savingsProduct => (
+      {filteredSavingsProducts.map(savingsProduct => (
         <ListRow
           key={savingsProduct.id}
           contents={
