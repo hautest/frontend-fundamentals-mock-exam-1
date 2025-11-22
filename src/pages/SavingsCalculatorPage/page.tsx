@@ -11,7 +11,9 @@ import {
   TextField,
 } from 'tosslib';
 import { SavingsProductList } from './components/SavingsProductList';
-import { Suspense } from '@suspensive/react';
+import { ErrorBoundary, Suspense } from '@suspensive/react';
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { QueryErrorBoundary } from 'shared/components/QueryErrorBoundary';
 
 export function SavingsCalculatorPage() {
   return (
@@ -43,9 +45,11 @@ export function SavingsCalculatorPage() {
         </Tab.Item>
       </Tab>
 
-      <Suspense fallback={<SavingsProductList.Skeleton />}>
-        <SavingsProductList />
-      </Suspense>
+      <QueryErrorBoundary fallback={({ error, reset }) => <SavingsProductList.Error error={error} reset={reset} />}>
+        <Suspense fallback={<SavingsProductList.Skeleton />}>
+          <SavingsProductList />
+        </Suspense>
+      </QueryErrorBoundary>
 
       {/* 아래는 계산 결과 탭 내용이에요. 계산 결과 탭을 구현할 때 주석을 해제해주세요. */}
       {/* <Spacing size={8} />

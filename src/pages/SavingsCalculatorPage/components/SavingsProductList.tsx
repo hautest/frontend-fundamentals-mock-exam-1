@@ -1,7 +1,8 @@
-import { Assets, colors, ListRow, Flex } from 'tosslib';
+import { Assets, colors, ListRow, Flex, Text, Button } from 'tosslib';
 import { useSavingsProductListSuspenseQuery } from '../queries/useSavingsProductListQuery';
 import { css } from '@emotion/react';
 import { Skeleton } from 'shared/ui/Skeleton';
+import { ErrorBoundaryFallbackProps } from '@suspensive/react';
 
 export function SavingsProductList() {
   const { data: savingsProducts } = useSavingsProductListSuspenseQuery();
@@ -73,3 +74,25 @@ function SavingsProductListSkeleton() {
   );
 }
 SavingsProductList.Skeleton = SavingsProductListSkeleton;
+
+function SavingsProductListError({ error, reset }: ErrorBoundaryFallbackProps) {
+  return (
+    <Flex
+      as="p"
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      css={css`
+        width: 100%;
+        padding: 40px 24px;
+      `}
+      gap={8}
+    >
+      <Text>{error.message}</Text>
+      <Button size="medium" onClick={() => reset()}>
+        재시도
+      </Button>
+    </Flex>
+  );
+}
+SavingsProductList.Error = SavingsProductListError;
