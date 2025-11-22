@@ -47,4 +47,4 @@
 - zod
 - @hookform/resolvers
 - @suspensive/react
-- tanstack/query
+- @tanstack/react-query
