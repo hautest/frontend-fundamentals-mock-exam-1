@@ -1,15 +1,18 @@
 import { SavingsProductList } from './components/SavingsProductList';
-import { Border, NavigationBar, Spacing, Tab } from 'tosslib';
+import { Border, Button, NavigationBar, Spacing, Tab } from 'tosslib';
 import { Suspense } from '@suspensive/react';
 import { QueryErrorBoundary } from 'shared/components/QueryErrorBoundary';
 import { CalculatorForm } from './components/CalculatorForm/CalculatorForm';
 import { useCalculatorForm } from './hooks/useCalculatorForm';
 import { FormProvider } from 'react-hook-form';
+import { useToast } from 'shared/ui/Toast';
 
 export function SavingsCalculatorPage() {
   const form = useCalculatorForm();
 
   const [monthlyAmount, term] = form.watch(['monthlyAmount', 'term']);
+
+  const { openToast } = useToast();
 
   return (
     <>

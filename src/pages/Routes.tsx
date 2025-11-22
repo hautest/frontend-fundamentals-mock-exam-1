@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { SavingsCalculatorPage } from './SavingsCalculatorPage/page';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'shared/queryClient';
+import { GlobalPortal } from 'tosslib';
+import { ToastProvider } from 'shared/ui/Toast';
 
 const router = createBrowserRouter([
   {
@@ -17,7 +19,11 @@ const router = createBrowserRouter([
 export function Routes() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <GlobalPortal.Provider>
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
+      </GlobalPortal.Provider>
     </QueryClientProvider>
   );
 }
