@@ -1,18 +1,36 @@
 import { SavingsProductList } from './components/SavingsProductList';
-import { Border, Button, NavigationBar, Spacing, Tab } from 'tosslib';
+import { Border, NavigationBar, Spacing, Tab } from 'tosslib';
 import { Suspense } from '@suspensive/react';
 import { QueryErrorBoundary } from 'shared/components/QueryErrorBoundary';
 import { CalculatorForm } from './components/CalculatorForm/CalculatorForm';
 import { useCalculatorForm } from './hooks/useCalculatorForm';
 import { FormProvider } from 'react-hook-form';
 import { useToast } from 'shared/ui/Toast';
+import { useEffect, useState } from 'react';
 
 export function SavingsCalculatorPage() {
   const form = useCalculatorForm();
 
   const [monthlyAmount, term] = form.watch(['monthlyAmount', 'term']);
 
+  const [selectedSavingsProductId, setSelectedSavingsProductId] = useState('');
+
   const { openToast } = useToast();
+
+  useEffect(() => {
+    // 조건이 변경되면 선택한 상품을 해지하고 토스트를 띄웁니다.
+    form.subscribe({
+      name: ['term', 'monthlyAmount'],
+      callback: () => {
+        if (selectedSavingsProductId) {
+          setSelectedSavingsProductId('');
+          openToast({
+            message: '조건이 변경되어 선택한 상품을 해지합니다. 다시 상품을 선택해 주세요.',
+          });
+        }
+      },
+    });
+  }, [form, openToast, selectedSavingsProductId]);
 
   return (
     <>
@@ -39,7 +57,12 @@ export function SavingsCalculatorPage() {
 
       <QueryErrorBoundary fallback={({ error, reset }) => <SavingsProductList.Error error={error} reset={reset} />}>
         <Suspense fallback={<SavingsProductList.Skeleton />}>
-          <SavingsProductList monthlyAmount={monthlyAmount} term={term} />
+          <SavingsProductList
+            selectedSavingsProductId={selectedSavingsProductId}
+            onSelectSavingsProduct={setSelectedSavingsProductId}
+            monthlyAmount={monthlyAmount}
+            term={term}
+          />
         </Suspense>
       </QueryErrorBoundary>
 

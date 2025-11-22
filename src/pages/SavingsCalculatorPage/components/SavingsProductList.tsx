@@ -7,9 +7,16 @@ import { ErrorBoundaryFallbackProps } from '@suspensive/react';
 interface SavingsProductListProps {
   monthlyAmount?: number;
   term?: number;
+  onSelectSavingsProduct: (savingsProductId: string) => void;
+  selectedSavingsProductId: string;
 }
 
-export function SavingsProductList({ monthlyAmount, term }: SavingsProductListProps) {
+export function SavingsProductList({
+  monthlyAmount,
+  selectedSavingsProductId,
+  term,
+  onSelectSavingsProduct,
+}: SavingsProductListProps) {
   const { data: savingsProducts } = useSavingsProductListSuspenseQuery();
 
   const filteredSavingsProducts =
@@ -54,8 +61,10 @@ export function SavingsProductList({ monthlyAmount, term }: SavingsProductListPr
               bottomProps={{ fontSize: 13, color: colors.grey600 }}
             />
           }
-          right={<Assets.Icon name="icon-check-circle-green" />}
-          onClick={() => {}}
+          right={selectedSavingsProductId === savingsProduct.id && <Assets.Icon name="icon-check-circle-green" />}
+          onClick={() => {
+            onSelectSavingsProduct(savingsProduct.id);
+          }}
         />
       ))}
     </ul>
