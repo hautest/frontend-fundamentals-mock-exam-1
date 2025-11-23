@@ -1,29 +1,21 @@
 import { Assets, colors, ListRow, Flex, Text, Button } from 'tosslib';
-import { useSavingsProductListSuspenseQuery } from '../queries/useSavingsProductListQuery';
 import { css } from '@emotion/react';
 import { Skeleton } from 'shared/ui/Skeleton';
 import { ErrorBoundaryFallbackProps } from '@suspensive/react';
 import { SavingsProduct } from 'entities/savingsProduct/savingsProduct';
-import { useMemo } from 'react';
 
 interface SavingsProductListProps {
   onSelectSavingsProduct: (savingsProductId: string) => void;
   selectedSavingsProductId: string;
-  processItems?: (savingsProducts: SavingsProduct[]) => SavingsProduct[];
+  products: SavingsProduct[];
 }
 
 export function SavingsProductList({
   selectedSavingsProductId,
   onSelectSavingsProduct,
-  processItems,
+  products,
 }: SavingsProductListProps) {
-  const { data: savingsProducts } = useSavingsProductListSuspenseQuery();
-
-  const filteredSavingsProducts = useMemo(() => {
-    return processItems ? processItems(savingsProducts) : savingsProducts;
-  }, [savingsProducts, processItems]);
-
-  if (filteredSavingsProducts.length === 0) {
+  if (products.length === 0) {
     return (
       <Flex
         as="p"
@@ -41,23 +33,23 @@ export function SavingsProductList({
 
   return (
     <ul css={{ margin: 0, padding: 0 }}>
-      {filteredSavingsProducts.map(savingsProduct => (
+      {products.map(product => (
         <ListRow
-          key={savingsProduct.id}
+          key={product.id}
           contents={
             <ListRow.Texts
               type="3RowTypeA"
-              top={savingsProduct.name}
+              top={product.name}
               topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
-              middle={`연 이자율: ${savingsProduct.annualRate}%`}
+              middle={`연 이자율: ${product.annualRate}%`}
               middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
-              bottom={`${savingsProduct.minMonthlyAmount.toLocaleString('ko-KR')}원 ~ ${savingsProduct.maxMonthlyAmount.toLocaleString('ko-KR')}원 | ${savingsProduct.availableTerms}개월`}
+              bottom={`${product.minMonthlyAmount.toLocaleString('ko-KR')}원 ~ ${product.maxMonthlyAmount.toLocaleString('ko-KR')}원 | ${product.availableTerms}개월`}
               bottomProps={{ fontSize: 13, color: colors.grey600 }}
             />
           }
-          right={selectedSavingsProductId === savingsProduct.id && <Assets.Icon name="icon-check-circle-green" />}
+          right={selectedSavingsProductId === product.id && <Assets.Icon name="icon-check-circle-green" />}
           onClick={() => {
-            onSelectSavingsProduct(savingsProduct.id);
+            onSelectSavingsProduct(product.id);
           }}
         />
       ))}

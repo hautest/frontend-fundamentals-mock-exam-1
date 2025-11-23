@@ -1,4 +1,3 @@
-import { SavingsProductList } from './components/SavingsProductList';
 import { Border, NavigationBar, Spacing } from 'tosslib';
 import { Suspense } from '@suspensive/react';
 import { QueryErrorBoundary } from 'shared/components/QueryErrorBoundary';
@@ -8,8 +7,8 @@ import { FormProvider } from 'react-hook-form';
 import { useToast } from 'shared/ui/Toast';
 import { useEffect, useState } from 'react';
 import { Tab } from 'shared/ui/Tab';
-import { CalculatorResult } from './components/CalculatorResult';
-import { SavingsProduct } from 'entities/savingsProduct/savingsProduct';
+import { CalculatorResult } from './components/CalculatorResult/CalculatorResult';
+import { SavingsProductListSection } from './components/SavingsProductListSection';
 
 const TAB_VALUES = {
   PRODUCTS: 'products',
@@ -30,7 +29,7 @@ export function SavingsCalculatorPage() {
 
   useEffect(() => {
     // 조건이 변경되면 선택한 상품을 해지하고 토스트를 띄웁니다.
-    form.subscribe({
+    const unsubscribe = form.subscribe({
       name: ['term', 'monthlyAmount'],
       callback: () => {
         if (selectedSavingsProductId) {
@@ -42,30 +41,9 @@ export function SavingsCalculatorPage() {
         }
       },
     });
+
+    return () => unsubscribe();
   }, [form, openToast, selectedSavingsProductId]);
-
-  const processSavingsProducts = (products: SavingsProduct[]) =>
-    monthlyAmount && term
-      ? products.filter(
-          product =>
-            product.minMonthlyAmount <= monthlyAmount &&
-            product.maxMonthlyAmount >= monthlyAmount &&
-            product.availableTerms === term
-        )
-      : products;
-
-  const processRecommendedProducts = (products: SavingsProduct[]) =>
-    products
-      .filter(
-        product =>
-          monthlyAmount &&
-          term &&
-          product.minMonthlyAmount <= monthlyAmount &&
-          product.maxMonthlyAmount >= monthlyAmount &&
-          product.availableTerms === term
-      )
-      .sort((a, b) => b.annualRate - a.annualRate)
-      .slice(0, 2);
 
   return (
     <>
@@ -87,12 +65,15 @@ export function SavingsCalculatorPage() {
           <Tab.Item value={TAB_VALUES.RESULTS}>계산 결과</Tab.Item>
         </Tab.List>
         <Tab.Content value={TAB_VALUES.PRODUCTS}>
-          <QueryErrorBoundary fallback={({ error, reset }) => <SavingsProductList.Error error={error} reset={reset} />}>
-            <Suspense fallback={<SavingsProductList.Skeleton />}>
-              <SavingsProductList
+          <QueryErrorBoundary
+            fallback={({ error, reset }) => <SavingsProductListSection.Error error={error} reset={reset} />}
+          >
+            <Suspense fallback={<SavingsProductListSection.Skeleton />}>
+              <SavingsProductListSection
                 selectedSavingsProductId={selectedSavingsProductId}
-                onSelectSavingsProduct={setSelectedSavingsProductId}
-                processItems={processSavingsProducts}
+                setSelectedSavingsProductId={setSelectedSavingsProductId}
+                monthlyAmount={monthlyAmount}
+                term={term}
               />
             </Suspense>
           </QueryErrorBoundary>
@@ -105,7 +86,6 @@ export function SavingsCalculatorPage() {
             monthlyAmount={monthlyAmount}
             term={term}
             goalAmount={goalAmount}
-            processRecommendedProducts={processRecommendedProducts}
           />
         </Tab.Content>
       </Tab>

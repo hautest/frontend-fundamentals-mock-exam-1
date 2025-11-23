@@ -1,12 +1,11 @@
-import { calculateExpectedAmount } from 'features/savingsProduct/ulits/calculateExpectedAmount';
-import { calculateRecommendedMonthlyAmount } from 'features/savingsProduct/ulits/calculateRecommendedMonthlyAmount';
+import { calculateExpectedAmount } from 'features/savingsProduct/utils/calculateExpectedAmount';
+import { calculateRecommendedMonthlyAmount } from 'features/savingsProduct/utils/calculateRecommendedMonthlyAmount';
 import { Border, colors, Flex, ListHeader, ListRow, Spacing } from 'tosslib';
-import { useSavingsProductListQuery } from '../queries/useSavingsProductListQuery';
+import { useSavingsProductListQuery } from '../../queries/useSavingsProductListQuery';
 import { QueryErrorBoundary } from 'shared/components/QueryErrorBoundary';
-import { SavingsProductList } from './SavingsProductList';
 import { Suspense } from '@suspensive/react';
-import { SavingsProduct } from 'entities/savingsProduct/savingsProduct';
 import { css } from '@emotion/react';
+import { RecommendedProductListSection } from './RecommendedProductListSection';
 
 interface CalculatorResultProps {
   monthlyAmount: number;
@@ -14,7 +13,6 @@ interface CalculatorResultProps {
   goalAmount: number;
   selectedSavingsProductId: string;
   setSelectedSavingsProductId: (savingsProductId: string) => void;
-  processRecommendedProducts?: (products: SavingsProduct[]) => SavingsProduct[];
 }
 
 export function CalculatorResult({
@@ -23,7 +21,6 @@ export function CalculatorResult({
   term,
   goalAmount,
   selectedSavingsProductId,
-  processRecommendedProducts,
 }: CalculatorResultProps) {
   const { data: savingsProducts } = useSavingsProductListQuery();
 
@@ -100,12 +97,15 @@ export function CalculatorResult({
       <ListHeader title={<ListHeader.TitleParagraph fontWeight="bold">추천 상품 목록</ListHeader.TitleParagraph>} />
       <Spacing size={12} />
 
-      <QueryErrorBoundary fallback={({ error, reset }) => <SavingsProductList.Error error={error} reset={reset} />}>
-        <Suspense fallback={<SavingsProductList.Skeleton />}>
-          <SavingsProductList
+      <QueryErrorBoundary
+        fallback={({ error, reset }) => <RecommendedProductListSection.Error error={error} reset={reset} />}
+      >
+        <Suspense fallback={<RecommendedProductListSection.Skeleton />}>
+          <RecommendedProductListSection
+            monthlyAmount={monthlyAmount}
+            term={term}
             selectedSavingsProductId={selectedSavingsProductId}
-            onSelectSavingsProduct={setSelectedSavingsProductId}
-            processItems={processRecommendedProducts}
+            setSelectedSavingsProductId={setSelectedSavingsProductId}
           />
         </Suspense>
       </QueryErrorBoundary>

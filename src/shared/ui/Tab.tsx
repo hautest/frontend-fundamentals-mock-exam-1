@@ -1,4 +1,4 @@
-import { useControllableState } from 'pages/SavingsCalculatorPage/hooks/useControllableState';
+import { useControllableState } from 'shared/hooks/useControllableState';
 import { Children, cloneElement, ComponentProps, isValidElement, ReactElement, ReactNode, useMemo } from 'react';
 import { createSafeContext } from 'shared/utils/createSafeContext';
 import { Tab as TosslibTab } from 'tosslib';
