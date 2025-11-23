@@ -3,31 +3,25 @@ import { useSavingsProductListSuspenseQuery } from '../queries/useSavingsProduct
 import { css } from '@emotion/react';
 import { Skeleton } from 'shared/ui/Skeleton';
 import { ErrorBoundaryFallbackProps } from '@suspensive/react';
+import { SavingsProduct } from 'entities/savingsProduct/savingsProduct';
+import { useMemo } from 'react';
 
 interface SavingsProductListProps {
-  monthlyAmount?: number;
-  term?: number;
   onSelectSavingsProduct: (savingsProductId: string) => void;
   selectedSavingsProductId: string;
+  processItems?: (savingsProducts: SavingsProduct[]) => SavingsProduct[];
 }
 
 export function SavingsProductList({
-  monthlyAmount,
   selectedSavingsProductId,
-  term,
   onSelectSavingsProduct,
+  processItems,
 }: SavingsProductListProps) {
   const { data: savingsProducts } = useSavingsProductListSuspenseQuery();
 
-  const filteredSavingsProducts =
-    monthlyAmount && term
-      ? savingsProducts.filter(
-          product =>
-            product.minMonthlyAmount <= monthlyAmount &&
-            product.maxMonthlyAmount >= monthlyAmount &&
-            product.availableTerms === term
-        )
-      : savingsProducts;
+  const filteredSavingsProducts = useMemo(() => {
+    return processItems ? processItems(savingsProducts) : savingsProducts;
+  }, [savingsProducts, processItems]);
 
   if (filteredSavingsProducts.length === 0) {
     return (
@@ -40,13 +34,13 @@ export function SavingsProductList({
           color: ${colors.grey600};
         `}
       >
-        현재 적금 상품이 없습니다.
+        현재 적금 상품이 없습니다. 조건을 수정해 주세요.
       </Flex>
     );
   }
 
   return (
-    <ul>
+    <ul css={{ margin: 0, padding: 0 }}>
       {filteredSavingsProducts.map(savingsProduct => (
         <ListRow
           key={savingsProduct.id}
