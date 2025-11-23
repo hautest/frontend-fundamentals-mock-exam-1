@@ -1,28 +1,22 @@
-import {
-  Children,
-  cloneElement,
-  ComponentProps,
-  isValidElement,
-  ReactElement,
-  ReactNode,
-  useMemo,
-  useState,
-} from 'react';
+import { useControllableState } from 'pages/SavingsCalculatorPage/hooks/useControllableState';
+import { Children, cloneElement, ComponentProps, isValidElement, ReactElement, ReactNode, useMemo } from 'react';
 import { createSafeContext } from 'shared/utils/createSafeContext';
 import { Tab as TosslibTab } from 'tosslib';
 
 type TabItemElement = ReactElement<ComponentProps<typeof TosslibTab.Item>>;
 
-interface TabContext {
-  value: string;
-  onChange: (value: string) => void;
+interface TabContext<T extends string = string> {
+  value?: T;
+  onChange: (value: T) => void;
 }
 
 const [TabProvider, useTabContext] = createSafeContext<TabContext>('TabProvider');
 
-interface TabProps {
+interface TabProps<T extends string = string> {
   children: ReactNode;
-  defaultValue?: string;
+  defaultValue?: T;
+  value?: T;
+  onChange?: (value: T) => void;
 }
 
 /**
@@ -41,11 +35,22 @@ interface TabProps {
  *   </Tab.Content>
  * </Tab>
  */
-export function Tab({ children, defaultValue = '' }: TabProps) {
-  const [tabValue, setTabValue] = useState(defaultValue);
+export function Tab<T extends string = string>({ children, defaultValue, value, onChange }: TabProps<T>) {
+  const [selectedValue, setSelectedValue] = useControllableState({
+    value,
+    onChange,
+    defaultValue,
+  });
 
   return (
-    <TabProvider value={useMemo(() => ({ value: tabValue, onChange: setTabValue }), [tabValue])}>
+    <TabProvider
+      value={
+        useMemo(
+          () => ({ value: selectedValue, onChange: setSelectedValue }),
+          [selectedValue, setSelectedValue]
+        ) as TabContext
+      }
+    >
       {children}
     </TabProvider>
   );
